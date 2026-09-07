@@ -35,11 +35,10 @@ bun.lock
 # --- Agent & platform scratch ---
 .claude-trace
 .lovable/
-
-# --- Docs: raw source transcript ---
-# 243KB of raw chat history. The specs derived from it are the useful
-# artifacts: docs/human_only/ (authoritative) and docs/llm_generated/.
-docs/full_conversation.md
+# --- Content parked for LLMs to skip ---
+# Tracked in git, hidden from assistants. Holds the 243KB raw transcript;
+# the specs derived from it (docs/human_only, docs/llm_generated) stay visible.
+llm_ignore/
 
 # --- Static assets (no readable content) ---
 public/

@@ -21,7 +21,7 @@ A reconciled, deduplicated rendering of the specifications in `docs/human_only/`
 ## 2. Structural changes
 
 * **Editor and Config split into separate files.** `editor_config_page.md` covered two tabs in one document; every other tab has its own file, so these were separated to match.
-* **Secrets given a dedicated file.** No human-only file specified this tab. `13-screen-secrets.md` is built from `tool_Generator_Server.md` §4.D (schema enforcement, smart `.env` loading), with the ASCII layout and merge semantics reconstructed from the design conversation in `docs/full_conversation.md` (L619–655) that produced that section. This is the only file with content not present verbatim in `docs/human_only/`; it is flagged as reconstructed in its own header.
+* **Secrets given a dedicated file.** No human-only file specified this tab. `13-screen-secrets.md` is built from `tool_Generator_Server.md` §4.D (schema enforcement, smart `.env` loading), with the ASCII layout and merge semantics reconstructed from the design conversation in `llm_ignore/full_conversation.md` (L619–655) that produced that section. This is the only file with content not present verbatim in `docs/human_only/`; it is flagged as reconstructed in its own header.
 * **`ToolContract.ts` kept as compilable TypeScript** rather than folded into markdown. Verified against `tsc --noEmit --strict`.
 
 ## 3. Reconciliation log
