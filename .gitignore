@@ -32,3 +32,10 @@ dist-ssr
 *.sw?
 
 .claude-trace
+
+# Secrets — never commit. Mirrored in .claudeignore/.cursorignore/.llmignore
+# (which hide them from AI assistants) and .claude/settings.json permissions.deny
+# (which is what Claude Code actually enforces).
+.env
+.env.*
+*.env
