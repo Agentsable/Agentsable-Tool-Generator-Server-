@@ -1,0 +1,11 @@
+{
+  // Production. Merged into .output/server/wrangler.json by nitro's cloudflare preset
+  // at build time — nitro owns `main` and `assets`, we own name + routes + compat date.
+  // Staging lives in wrangler.staging.jsonc: wrangler forbids `env` blocks in a
+  // tool-generated (redirected) config, so it cannot be an env of this one.
+  "name": "agentsable-tool-generator-server",
+  // ponytail: pinned, not left to nitro. Nitro derives it from the LOCAL date, which
+  // lands in the future for UTC-behind timezones and CF rejects it (error 10021).
+  "compatibility_date": "2026-09-07",
+  "routes": [{ "pattern": "tgs.agentsable.com", "custom_domain": true }]
+}

@@ -16,7 +16,9 @@
     "deno:test": "deno test --allow-net --allow-read --allow-env --allow-write local-deno-server/",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "test:all": "vitest run && playwright test"
+    "test:all": "vitest run && playwright test",
+    "deploy": "bun run build && wrangler deploy",
+    "deploy:staging": "bun run build && wrangler deploy -c wrangler.staging.jsonc"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -103,6 +105,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "8.1.5",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "wrangler": "^4.60.0"
   }
 }

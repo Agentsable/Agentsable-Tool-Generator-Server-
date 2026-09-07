@@ -1,0 +1,15 @@
+{
+  // Staging: same build artifact as prod, different worker + hostname.
+  //   bun run deploy:staging   ->   https://tgs-staging.agentsable.com
+  // ponytail: main/assets/rules duplicate what nitro generates for prod, because a
+  // redirected config can't carry environments. If nitro's output layout ever moves,
+  // prod keeps working and only this file needs the new paths.
+  "name": "agentsable-tool-generator-server-staging",
+  "compatibility_date": "2026-09-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": ".output/server/index.mjs",
+  "assets": { "binding": "ASSETS", "directory": ".output/public" },
+  "no_bundle": true,
+  "rules": [{ "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }],
+  "routes": [{ "pattern": "tgs-staging.agentsable.com", "custom_domain": true }]
+}
