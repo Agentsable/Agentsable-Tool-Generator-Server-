@@ -1,1 +1,45 @@
+# Paths hidden from AI coding assistants.
+# gitignore-style patterns. Keep .claudeignore / .cursorignore / .llmignore identical.
+
+# --- Secrets (never expose to a model) ---
+.env
+.env.*
+*.env
+.dev.vars
+
+# --- Dependencies & build output ---
+node_modules/
+dist/
+dist-ssr/
+.output/
+.nitro/
+.vinxi/
+.tanstack/
+.wrangler/
+
+# --- Machine-generated, large, no signal ---
+bun.lock
+
+# --- VCS & editor state ---
+.git/
+.history/
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Agent & platform scratch ---
 .claude-trace
+.lovable/
+
+# --- Docs: raw source transcript ---
+# 243KB of raw chat history. The specs derived from it are the useful
+# artifacts: docs/human_only/ (authoritative) and docs/llm_generated/.
+docs/full_conversation.md
+
+# --- Static assets (no readable content) ---
+public/
