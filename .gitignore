@@ -39,3 +39,6 @@ dist-ssr
 .env
 .env.*
 *.env
+
+# VSCode Local History extension scratch (duplicates tracked files)
+.history/
