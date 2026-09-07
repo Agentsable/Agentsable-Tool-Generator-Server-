@@ -325,3 +325,56 @@
     cursor: not-allowed;
   }
 }
+
+@layer components {
+  /* Cobalt underline accent used under display headings (agentsable brand rule). */
+  .brand-rule {
+    position: relative;
+    display: inline-block;
+  }
+  .brand-rule::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.35rem;
+    height: 4px;
+    border-radius: 2px;
+    background-color: var(--color-rule);
+  }
+
+  /* Uppercase step / eyebrow label. */
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-secondary);
+  }
+
+  /* Numbered narrative marker (01, 02, …). */
+  .step-number {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-accent);
+  }
+
+  /* Callout card with the coral left bar. */
+  .callout {
+    border-left: 4px solid var(--color-accent);
+    background-color: var(--color-card);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+  }
+
+  /* Frosted sticky bar treatment. */
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+    background-color: color-mix(in oklab, var(--color-background) 85%, transparent);
+    backdrop-filter: blur(10px);
+  }
+}
