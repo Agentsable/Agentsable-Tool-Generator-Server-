@@ -13,9 +13,9 @@ import { RunnerScreen } from "@/screens/RunnerScreen";
 const TABS = ["Raw Data", "Editor", "Config", "Secrets", "Validator", "Runner"] as const;
 type Tab = (typeof TABS)[number];
 
-const title = "STS Tool Workspace — author, validate and test tools";
+const title = "Agentsable Tool Workspace — Build and Test Tools";
 const description =
-  "A local workspace for authoring Simple Tools Server tools: raw bundle view, focused code editor, config and secrets builders, validator dashboard and an HTTP test runner.";
+  "The Agentsable workspace for authoring, configuring, validating, and testing production-ready agent tools.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
   component: Workspace,
 });
@@ -37,10 +38,10 @@ function Workspace() {
   return (
     <ToolProvider>
       <div className="flex h-screen flex-col bg-background">
-        <h1 className="sr-only">STS Tool Workspace</h1>
+        <h1 className="sr-only">Agentsable Tool Workspace</h1>
         <TopBar />
 
-        <nav className="flex flex-wrap gap-1 border-b border-border bg-surface px-3 py-2">
+        <nav aria-label="Workspace sections" className="flex flex-wrap gap-1 border-b border-border bg-surface px-4 py-2">
           {TABS.map((t) => (
             <button key={t} className="tab" data-active={t === tab} onClick={() => setTab(t)}>
               {t}

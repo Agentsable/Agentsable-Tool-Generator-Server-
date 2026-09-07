@@ -44,7 +44,7 @@ export function RunnerScreen() {
           </button>
           <span className="chip">http://localhost:8080/{toolName}</span>
           {Object.keys(results).length ? (
-            <span className="chip" style={{ color: failed.length ? "var(--color-destructive)" : "var(--color-success)" }}>
+            <span className={`chip ${failed.length ? "text-destructive" : "text-success"}`}>
               {tests.length - failed.length}/{tests.length} passing
             </span>
           ) : null}

@@ -1,4 +1,4 @@
-import { FolderOpen, FolderTree, Rocket, Save, Terminal } from "lucide-react";
+import { FolderOpen, FolderTree, Rocket, Save, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useTool } from "@/state/toolStore";
 
@@ -6,10 +6,15 @@ export function TopBar() {
   const { toolName, setToolName, dirty, markSaved } = useTool();
 
   return (
-    <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
-      <div className="mr-2 flex items-center gap-2">
-        <Terminal className="h-4 w-4 text-primary" />
-        <span className="text-sm font-semibold tracking-tight">STS Tool Workspace</span>
+    <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-4 py-3 shadow-sm">
+      <div className="mr-3 flex items-center gap-2.5">
+        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <div className="leading-none">
+          <span className="block font-display text-base font-extrabold text-primary">agentsable</span>
+          <span className="mt-1 block text-[0.65rem] font-semibold uppercase text-secondary">Tool Workspace</span>
+        </div>
       </div>
 
       <button className="btn" onClick={() => toast("Pick a tool bundle to load")}>

@@ -26,7 +26,7 @@ export function AiSidebar({ activeTab }: { activeTab: string }) {
           >
             <div className="mb-1 flex items-center gap-1.5 text-[0.68rem] uppercase tracking-widest text-muted-foreground">
               {m.role === "assistant" ? <Sparkles className="h-3 w-3 text-primary" /> : null}
-              {m.role === "assistant" ? "claude-agent-sdk" : "you"}
+              {m.role === "assistant" ? "agentsable agent" : "you"}
             </div>
             {m.text}
           </div>
