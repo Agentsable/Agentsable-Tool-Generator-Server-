@@ -10,13 +10,17 @@
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 3px);
-  --radius-md: calc(var(--radius) - 1px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --color-rule: var(--rule);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
