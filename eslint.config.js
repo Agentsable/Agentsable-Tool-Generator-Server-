@@ -6,7 +6,21 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  {
+    ignores: [
+      "dist",
+      ".output",
+      ".vinxi",
+      // Authoritative + generated specs. `docs/human_only/` must never be edited,
+      // and both ToolContract copies are verbatim mirrors of it.
+      "docs",
+      // Deno source: checked by `deno check` / `deno lint`, not by the app's
+      // browser-targeted TS config.
+      "local-deno-server",
+      "test-results",
+      "playwright-report",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

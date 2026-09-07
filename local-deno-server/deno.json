@@ -1,0 +1,20 @@
+{
+  "imports": {
+    "/core/": "./core/"
+  },
+  "tasks": {
+    "start": "deno run --allow-all server.ts",
+    "test": "deno test --allow-all",
+    "check": "deno check server.ts server_test.ts core/**/*.ts tools/*.ts"
+  },
+  "fmt": {
+    "lineWidth": 100
+  },
+  "lint": {
+    "rules": {
+      "exclude": [
+        "no-explicit-any"
+      ]
+    }
+  }
+}

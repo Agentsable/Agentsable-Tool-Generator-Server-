@@ -42,3 +42,9 @@ dist-ssr
 
 # VSCode Local History extension scratch (duplicates tracked files)
 .history/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/.playwright/

@@ -1,180 +1,226 @@
-import { useState } from "react";
-import { Plus, Settings2, X } from "lucide-react";
-import { CodePane } from "@/components/CodePane";
-import { useTool, type ErrorSpec } from "@/state/toolStore";
+/**
+ * [ Config ] — schema builder and dual-file JSON synchronizer
+ * (docs/llm_generated/12-screen-config.md).
+ *
+ *   ⚙️ CONFIGURATION: [ Form Editor ] [ Tool JSON ] [ Config JSON ]
+ *
+ * §2 Form Editor  — the interactive builder, in FormEditor.tsx.
+ * §3 Tool JSON    — live projection of the `baseConfig` embedded in `[name].ts`.
+ * §4 Config JSON  — the standalone `[name].json`, which may legitimately diverge.
+ *
+ * All three write through the synchronization-matrix actions on the store (§5);
+ * this screen never mutates the bundle itself.
+ */
 
-const VIEWS = ["Form Editor", "Tool JSON", "Config JSON"] as const;
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Download, Save, Settings2 } from "lucide-react";
+import { toast } from "sonner";
 
-function ListField({
-  label,
-  items,
-  onChange,
-  placeholder,
-}: {
-  label: string;
-  items: string[];
-  onChange: (v: string[]) => void;
-  placeholder: string;
-}) {
-  const [draft, setDraft] = useState("");
+import { MonacoEditor } from "@/components/tgs/MonacoEditor";
+import { useTool } from "@/state/toolStore";
+import { FormEditor } from "@/screens/config/FormEditor";
+
+const SUB_VIEWS = ["Form Editor", "Tool JSON", "Config JSON"] as const;
+type SubView = (typeof SUB_VIEWS)[number];
+
+const format = (value: unknown): string => `${JSON.stringify(value ?? {}, null, 2)}\n`;
+
+export function ConfigScreen() {
+  const [view, setView] = useState<SubView>("Form Editor");
+  const { configDivergence, bundle } = useTool();
+
   return (
-    <div>
-      <span className="label">{label}</span>
-      <div className="flex flex-wrap items-center gap-2">
-        {items.map((it) => (
-          <span key={it} className="chip">
-            {it}
+    <section className="panel">
+      <div className="panel-head">
+        <Settings2 className="h-4 w-4 text-primary" />
+        <span>⚙️ Configuration</span>
+        <div className="ml-2 flex gap-1" role="tablist" aria-label="Configuration sub-views">
+          {SUB_VIEWS.map((v) => (
             <button
-              onClick={() => onChange(items.filter((x) => x !== it))}
-              aria-label={`Remove ${it}`}
+              key={v}
+              type="button"
+              role="tab"
+              aria-selected={v === view}
+              className="subtab"
+              data-active={v === view}
+              onClick={() => setView(v)}
             >
-              <X className="h-3 w-3 text-muted-foreground" />
+              {v}
             </button>
+          ))}
+        </div>
+        {configDivergence.length > 0 ? (
+          <span className="chip ml-auto text-warning" title={configDivergence.join(", ")}>
+            <AlertTriangle className="h-3 w-3" /> {configDivergence.length} diverged
           </span>
-        ))}
-        <input
-          className="field w-56"
-          placeholder={placeholder}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && draft.trim()) {
-              e.preventDefault();
-              onChange([...items, draft.trim()]);
-              setDraft("");
-            }
-          }}
+        ) : (
+          <span className="chip ml-auto">.ts and .json agree</span>
+        )}
+      </div>
+
+      <div className="p-4">
+        {view === "Form Editor" ? <FormEditor /> : null}
+        {view === "Tool JSON" ? <ToolJsonPane /> : null}
+        {view === "Config JSON" ? <ConfigJsonPane /> : null}
+      </div>
+
+      <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
+        Editing <span className="font-mono">{bundle.name}.ts</span> and{" "}
+        <span className="font-mono">{bundle.name}.json</span>. Nothing reaches disk until [ 💾 Save
+        ] in the top action bar.
+      </p>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* §3 — Raw Tool JSON                                                  */
+/* ------------------------------------------------------------------ */
+
+function ToolJsonPane() {
+  const { bundle, saveToolJsonBuffer } = useTool();
+  const external = useMemo(() => format(bundle.config), [bundle.config]);
+
+  const [buffer, setBuffer] = useState(external);
+  const [error, setError] = useState<string | null>(null);
+
+  // The store changed underneath us (a form save, a load, the AI) — re-seed.
+  useEffect(() => {
+    setBuffer(external);
+    setError(null);
+  }, [external]);
+
+  const modified = buffer !== external;
+
+  const save = () => {
+    const result = saveToolJsonBuffer(buffer);
+    if (!result.ok) {
+      setError(result.error ?? "Invalid JSON.");
+      toast.error("That JSON does not parse — the .ts file was left untouched.");
+      return;
+    }
+    setError(null);
+    toast.success(`baseConfig rewritten in ${bundle.name}.ts.`);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" className="btn btn-primary" onClick={save}>
+          <Save className="h-4 w-4" /> 💾 Save to Tool (.ts file)
+        </button>
+        {modified ? (
+          <span className="chip text-warning">modified — not saved</span>
+        ) : (
+          <span className="chip">in sync with {bundle.name}.ts</span>
+        )}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        A live projection of the <span className="font-mono">baseConfig</span> object inside{" "}
+        <span className="font-mono">{bundle.name}.ts</span>. Saving rewrites only that declaration —
+        the <span className="font-mono">execute</span> block is never touched.
+      </p>
+
+      {error ? (
+        <p className="finding text-destructive" data-state="fail" role="alert">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </p>
+      ) : null}
+
+      <div className="overflow-hidden rounded-md border border-border">
+        <MonacoEditor
+          value={buffer}
+          onChange={setBuffer}
+          language="json"
+          height={460}
+          path={`tool-config-${bundle.name}.json`}
+          ariaLabel="Tool JSON"
         />
       </div>
     </div>
   );
 }
 
-export function ConfigScreen() {
-  const { config, setConfig, files } = useTool();
-  const [view, setView] = useState<(typeof VIEWS)[number]>("Form Editor");
+/* ------------------------------------------------------------------ */
+/* §4 — Raw Config JSON                                                */
+/* ------------------------------------------------------------------ */
 
-  const updateError = (i: number, patch: Partial<ErrorSpec>) =>
-    setConfig({ errors: config.errors.map((e, idx) => (idx === i ? { ...e, ...patch } : e)) });
+function ConfigJsonPane() {
+  const { bundle, saveConfigJsonBuffer } = useTool();
+  const external = useMemo(() => format(bundle.configJson), [bundle.configJson]);
+  const fromTool = useMemo(() => format(bundle.config), [bundle.config]);
+
+  const [buffer, setBuffer] = useState(external);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setBuffer(external);
+    setError(null);
+  }, [external]);
+
+  const modified = buffer !== external;
+
+  const save = () => {
+    const result = saveConfigJsonBuffer(buffer);
+    if (!result.ok) {
+      setError(result.error ?? "Invalid JSON.");
+      toast.error("That JSON does not parse — the .json file was left untouched.");
+      return;
+    }
+    setError(null);
+    toast.success(`${bundle.name}.json committed.`);
+  };
 
   return (
-    <section className="panel">
-      <div className="panel-head">
-        <Settings2 className="h-4 w-4 text-primary" />
-        <span>Configuration</span>
-        <div className="ml-2 flex gap-1">
-          {VIEWS.map((v) => (
-            <button key={v} className="tab" data-active={v === view} onClick={() => setView(v)}>
-              {v}
-            </button>
-          ))}
-        </div>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setBuffer(fromTool);
+            setError(null);
+            toast.success("Buffer replaced with the config from the .ts file.");
+          }}
+        >
+          <Download className="h-4 w-4" /> 📥 Load from Tool (.ts)
+        </button>
+        <button type="button" className="btn btn-accent" onClick={save}>
+          <Save className="h-4 w-4" /> 💾 Save to Config (.json)
+        </button>
+        {modified ? (
+          <span className="chip text-warning">modified — not saved</span>
+        ) : (
+          <span className="chip">in sync with {bundle.name}.json</span>
+        )}
       </div>
 
-      <div className="space-y-5 p-4">
-        {view === "Tool JSON" ? <CodePane value={files[1]!.content} readOnly /> : null}
-        {view === "Config JSON" ? (
-          <CodePane value={files[0]!.content.split("\n\n")[0] ?? ""} readOnly />
-        ) : null}
+      <p className="text-xs text-muted-foreground">
+        This is the standalone <span className="font-mono">{bundle.name}.json</span>. It may
+        legitimately diverge from the config embedded in the <span className="font-mono">.ts</span>{" "}
+        — an external override is a valid deployment pattern — so saving here never touches the
+        TypeScript file.
+      </p>
 
-        {view === "Form Editor" ? (
-          <>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <span className="label">Description</span>
-                <input
-                  className="field"
-                  value={config.description}
-                  onChange={(e) => setConfig({ description: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="label">Version</span>
-                  <input
-                    className="field"
-                    value={config.version}
-                    onChange={(e) => setConfig({ version: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <span className="label">Rate limit (rpm)</span>
-                  <input
-                    className="field"
-                    type="number"
-                    value={config.rate_limit_rpm}
-                    onChange={(e) => setConfig({ rate_limit_rpm: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-            </div>
+      {error ? (
+        <p className="finding text-destructive" data-state="fail" role="alert">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </p>
+      ) : null}
 
-            <ListField
-              label="Tool dependencies"
-              items={config.tool_dependencies}
-              onChange={(v) => setConfig({ tool_dependencies: v })}
-              placeholder="network_gateway + Enter"
-            />
-            <ListField
-              label="Allowed network requests"
-              items={config.network_requests}
-              onChange={(v) => setConfig({ network_requests: v })}
-              placeholder="https://api.example.com + Enter"
-            />
-
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <span className="label mb-0">Actionable errors</span>
-                <button
-                  className="btn ml-auto"
-                  onClick={() =>
-                    setConfig({
-                      errors: [
-                        ...config.errors,
-                        { code: "NEW_ERROR", message: "", actionable_advice: "" },
-                      ],
-                    })
-                  }
-                >
-                  <Plus className="h-4 w-4" /> Add error
-                </button>
-              </div>
-              <div className="space-y-3">
-                {config.errors.map((err, i) => (
-                  <div key={i} className="rounded-md border border-border bg-code p-3">
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <input
-                        className="field"
-                        value={err.code}
-                        onChange={(e) => updateError(i, { code: e.target.value })}
-                        placeholder="ERROR_CODE"
-                      />
-                      <input
-                        className="field"
-                        value={err.message}
-                        onChange={(e) => updateError(i, { message: e.target.value })}
-                        placeholder="message shown to the caller"
-                      />
-                    </div>
-                    <input
-                      className="field mt-3"
-                      value={err.actionable_advice}
-                      onChange={(e) => updateError(i, { actionable_advice: e.target.value })}
-                      placeholder="actionable advice so an agent can self-correct"
-                    />
-                    <button
-                      className="btn mt-3"
-                      onClick={() => setConfig({ errors: config.errors.filter((_, x) => x !== i) })}
-                    >
-                      <X className="h-4 w-4" /> Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : null}
+      <div className="overflow-hidden rounded-md border border-border">
+        <MonacoEditor
+          value={buffer}
+          onChange={setBuffer}
+          language="json"
+          height={460}
+          path={`standalone-config-${bundle.name}.json`}
+          ariaLabel="Config JSON"
+        />
       </div>
-    </section>
+    </div>
   );
 }

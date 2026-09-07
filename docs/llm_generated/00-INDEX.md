@@ -17,6 +17,7 @@ A reconciled, deduplicated rendering of the specifications in `docs/human_only/`
 | `13-screen-secrets.md` | `[ Secrets ]` — schema-driven env manager | `tool_Generator_Server.md` §4.D |
 | `14-screen-validator.md` | `[ Validator ]` — Pyodide + Claude dual engine | `validator_page.md` |
 | `15-screen-runner.md` | `[ Runner ]` — HTTP execution sandbox | `runner_page.md` |
+| `20-running-locally.md` | How to start the app, the sandbox and the validators | — (implementation notes) |
 
 ## 2. Structural changes
 
@@ -57,3 +58,18 @@ Each entry names the conflict found across the human-only files and the resoluti
 
 * `ToolContract.ts` — `tsc --noEmit --strict --lib es2022,dom` passes.
 * No `[cite:` markers, LaTeX escapes, or references to `claude-agent-sdk-typescript`, `claude-3-5-sonnet-latest`, `sts_tool_guidelines.md`, `ToolsContract.ts`, "Save All", or "Tool Weaver" remain in this directory — except inside this index, which quotes them to record the changes.
+
+## 5. Implementation divergences
+
+Recorded per `CLAUDE.md`: the specs in `docs/human_only/` are unchanged; these are
+places where the running application in this repository knowingly departs from, or
+concretizes, what the specs describe.
+
+| # | Spec says | Implementation | Why |
+| --- | --- | --- | --- |
+| 16 | AI features run on `@anthropic-ai/claude-agent-sdk` (reconciliation #6). | `@anthropic-ai/sdk` (the Messages API) called from TanStack Start server functions, with a server-side tool-use loop for the assistant and the rubric as a `system` prompt for the validator. | The Agent SDK is the Claude Code harness: it spawns a CLI with filesystem and bash tools. The tool being authored lives in browser state, not on disk, and the Validator needs a strict-JSON structured response. The Messages API with declared tools gives the assistant exactly the five mutations the specs ask for (`replace_execution_logic`, `patch_tool_config`, `add_error_advice`, `add_test`, `run_tests`/`run_validations`) and keeps `ANTHROPIC_API_KEY` server-side. The model is `claude-opus-5` per reconciliation #7, overridable with `TGS_CLAUDE_MODEL`. |
+| 17 | "a lightweight local Deno proxy (e.g. `http://localhost:8080`)" — no wire protocol given. | `local-deno-server/` on port 8080 (`TGS_RUNNER_PORT`): `GET /health`, `PUT /tools/:name` to mount `{code, env, tests}`, `POST /:name` to execute with the raw test payload, `OPTIONS /:name` for the `SDKToolManifest`, `DELETE /tools/:name`. See `local-deno-server/README.md`. | The specs fix the boundary (HTTP, zero-trust, fresh `ToolExecutionContext` per request) but not the routes. Mount-then-execute keeps the browser from ever executing TypeScript, exactly as §5 of `01-system-overview.md` requires. |
+| 18 | Runner toolbar shows `[ ↻ Restart Local Deno Server ]`. | Labelled "Reconnect / Restart Local Deno Server": it re-probes `/health` and, when the server is down, shows the exact command to start it. | TGS runs in a browser tab and did not spawn the Deno process, so it cannot restart it. Claiming otherwise would be a lie in the UI. |
+| 19 | `sts_rules.md` sits beside `/src` in the file tree. | `sts_rules.md` at the repository root, generated from `DEFAULT_LLM_RUBRIC` in `src/lib/tgs/pythonRules.ts`, which is what the `[ LLM Rules ]` editor seeds from. | Keeps one source of truth. The editor's live buffer is the authority at runtime; the file is the checked-in default. |
+| 20 | `src/App.tsx` is the main application router. | TanStack Router file routes: `src/routes/__root.tsx` + `src/routes/index.tsx`. | The project was already scaffolded on TanStack Start; the three-zone base44 layout is unchanged. |
+| 21 | Health-score example in `14-screen-validator.md` implies a third "warning" outcome from a Python rule, but the execution contract returns `tuple[bool, str]`. | A passing rule whose message begins `WARN:` is counted as a warning (−5) rather than a pass. | The contract has no third state; this adds one without changing `validate`'s signature. |
