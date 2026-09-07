@@ -53,14 +53,7 @@ export function SecretsScreen() {
                 <span className="font-mono text-sm text-primary">{s.name}</span>
                 <span className="chip">{s.required ? "Required" : "Optional"}</span>
                 <span
-                  className="chip"
-                  style={{
-                    color: value
-                      ? "var(--color-success)"
-                      : s.required
-                        ? "var(--color-destructive)"
-                        : "var(--color-muted-foreground)",
-                  }}
+                  className={`chip ${value ? "text-success" : s.required ? "text-destructive" : "text-muted-foreground"}`}
                 >
                   {value ? "set" : "empty"}
                 </span>
