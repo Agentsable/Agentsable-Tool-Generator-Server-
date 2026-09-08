@@ -363,7 +363,7 @@ export function TopBar() {
             aria-describedby="tgs-rename-note"
             title="Renaming the tool renames all four files and updates config.name."
           />
-          <span className="chip">{dirty ? "unsaved" : "in sync"}</span>
+          <span className={dirty ? "chip chip-accent" : "chip"}>{dirty ? "unsaved" : "in sync"}</span>
         </div>
         <p
           id="tgs-rename-note"
@@ -379,7 +379,7 @@ export function TopBar() {
       </div>
 
       <span
-        className="chip"
+        className="chip chip-primary"
         title={
           neverRun
             ? "The validators have not been run for this tool yet."
@@ -389,7 +389,7 @@ export function TopBar() {
         🛡️ {validation.health.score}/100
       </span>
       {validation.stale || neverRun ? (
-        <span className="chip" title="Re-run the validations before publishing.">
+        <span className="chip chip-accent" title="Re-run the validations before publishing.">
           stale
         </span>
       ) : null}

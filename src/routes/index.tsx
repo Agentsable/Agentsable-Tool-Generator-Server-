@@ -98,7 +98,7 @@ function Workspace() {
 
       <nav
         aria-label="Workspace sections"
-        className="flex flex-wrap gap-1 border-b border-border bg-surface px-4 py-2"
+        className="flex flex-wrap items-center gap-0 border-b border-border bg-surface px-4"
       >
         {WORKSPACE_TABS.map((tab) => (
           <button
