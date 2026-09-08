@@ -219,6 +219,18 @@
   }
   .tab[data-active="true"] {
     color: var(--color-primary);
+  }
+  .tab[data-active="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.5rem;
+    height: 2px;
+    background-color: var(--color-primary);
+  }
+
+
 
 
   .btn {
