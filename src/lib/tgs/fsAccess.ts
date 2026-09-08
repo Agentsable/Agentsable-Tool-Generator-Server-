@@ -98,7 +98,8 @@ interface DirectoryPickerOptions {
 type FsPermissionDescriptor = { mode?: "read" | "readwrite" };
 
 /** `FileSystemDirectoryHandle` plus the async-iteration and permission members lib.dom omits. */
-export interface TgsDirectoryHandle extends FileSystemDirectoryHandle {
+export interface TgsDirectoryHandle
+  extends Omit<FileSystemDirectoryHandle, "entries" | "values" | "keys"> {
   values?(): AsyncIterableIterator<FileSystemHandle>;
   entries?(): AsyncIterableIterator<[string, FileSystemHandle]>;
   keys?(): AsyncIterableIterator<string>;
