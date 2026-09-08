@@ -277,20 +277,18 @@ export function TopBar() {
   /* ------------------------------------------------------------------ */
 
   return (
-    <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-4 py-3 shadow-sm">
-      <div className="mr-3 flex items-center gap-2.5">
+    <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-4 py-3">
+      <div className="mr-2 flex items-center gap-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Sparkles className="h-4 w-4" />
         </span>
-        <div className="leading-none">
-          <span className="block font-display text-base font-extrabold text-primary">
-            agentsable
-          </span>
-          <span className="mt-1 block text-[0.65rem] font-semibold uppercase text-secondary">
-            Tool Workspace
-          </span>
-        </div>
+        <span className="font-display text-lg font-extrabold uppercase tracking-tight text-primary">
+          agentsable
+        </span>
+        <span className="h-4 w-px bg-border" aria-hidden />
+        <span className="text-sm font-semibold text-foreground">Tool Workspace</span>
       </div>
+
 
       <button className="btn" onClick={() => void handleLoadFile()}>
         <FolderOpen className="h-4 w-4" /> Load File
@@ -365,7 +363,7 @@ export function TopBar() {
             aria-describedby="tgs-rename-note"
             title="Renaming the tool renames all four files and updates config.name."
           />
-          <span className="chip">{dirty ? "unsaved" : "in sync"}</span>
+          <span className={dirty ? "chip chip-accent" : "chip"}>{dirty ? "unsaved" : "in sync"}</span>
         </div>
         <p
           id="tgs-rename-note"
@@ -381,7 +379,7 @@ export function TopBar() {
       </div>
 
       <span
-        className="chip"
+        className="chip chip-primary"
         title={
           neverRun
             ? "The validators have not been run for this tool yet."
@@ -391,7 +389,7 @@ export function TopBar() {
         🛡️ {validation.health.score}/100
       </span>
       {validation.stale || neverRun ? (
-        <span className="chip" title="Re-run the validations before publishing.">
+        <span className="chip chip-accent" title="Re-run the validations before publishing.">
           stale
         </span>
       ) : null}
