@@ -237,61 +237,67 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.4rem 0.7rem;
+    height: 2rem;
+    padding: 0 0.65rem;
     border-radius: var(--radius-md);
-    border: 1px solid var(--color-border-strong);
-    background-color: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
     color: var(--color-foreground);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
+    white-space: nowrap;
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease;
   }
   .btn:hover {
-    border-color: var(--color-secondary);
-    background-color: var(--color-muted);
+    border-color: var(--color-border-strong);
+    background-color: var(--color-surface-raised);
   }
   .btn-primary {
     background-color: var(--color-primary);
     border-color: var(--color-primary);
     color: var(--color-primary-foreground);
-    font-weight: 600;
   }
   .btn-primary:hover {
     background-color: color-mix(in oklab, var(--color-primary) 90%, var(--color-foreground));
+    border-color: color-mix(in oklab, var(--color-primary) 90%, var(--color-foreground));
   }
   .btn-accent {
     background-color: var(--color-accent);
     border-color: var(--color-accent);
     color: var(--color-accent-foreground);
-    font-weight: 600;
   }
 
   .field {
     width: 100%;
-    padding: 0.45rem 0.6rem;
+    padding: 0.4rem 0.6rem;
     border-radius: var(--radius-md);
-    border: 1px solid var(--color-border-strong);
-    background-color: var(--color-code);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
     color: var(--color-foreground);
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
   }
   .field:focus {
-    border-color: var(--color-secondary);
+    border-color: var(--color-primary);
     box-shadow: var(--shadow-glow);
   }
 
   .label {
     display: block;
-    font-size: 0.72rem;
-    letter-spacing: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-muted-foreground);
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.35rem;
   }
+
 
   .code-surface {
     background-color: var(--color-code);
