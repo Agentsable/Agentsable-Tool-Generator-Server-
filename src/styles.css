@@ -310,12 +310,19 @@
 @layer components {
   /* Secondary (sub-)navigation used by Raw Data, Config, Validator and Runner. */
   .subtab {
-    padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    height: 1.5rem;
+    padding: 0 0.55rem;
+    border-radius: var(--radius-md);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--color-muted-foreground);
     border: 1px solid transparent;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
   }
   .subtab:hover {
     color: var(--color-foreground);
@@ -323,16 +330,17 @@
   }
   .subtab[data-active="true"] {
     color: var(--color-primary);
-    border-color: var(--color-border-strong);
-    background-color: var(--color-code);
+    border-color: color-mix(in oklab, var(--color-primary) 22%, transparent);
+    background-color: color-mix(in oklab, var(--color-primary) 8%, transparent);
   }
 
   .stat-card {
     border: 1px solid var(--color-border);
-    background-color: var(--color-code);
+    background-color: var(--color-surface);
     border-radius: var(--radius-md);
     padding: 0.875rem 1rem;
   }
+
 
   .finding {
     display: flex;
