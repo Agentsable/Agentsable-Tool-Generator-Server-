@@ -251,4 +251,3 @@ Whenever creating or modifying an STS tool, the following rules are non-negotiab
 
 
 7. **Zero-Trust Network:** You must **never** call the global `fetch()` directly inside a tool. Declare external domains in `config.network_requests` and proxy all external calls through `context.useCoreTool('network_gateway', {...})`.
-

@@ -3066,4 +3066,3 @@ This view provides a direct Monaco JSON editor for the \[tool\_name\]\_tests.jso
 Would you like to draft the exact JSON schema implementation that Monaco will use to auto-complete and validate these test arrays in the editor?
 
 ---
-

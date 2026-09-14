@@ -105,5 +105,3 @@ Key requirements enforced by TGS include:
 
 
 3. **Actionable Errors:** The schema must define errors with `actionable_advice` so AI agents can self-correct during ReAct loops.
-
-
