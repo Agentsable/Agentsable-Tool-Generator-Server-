@@ -44,9 +44,31 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+
+// The API renders tool files through src/lib/tgs/ast.ts, which parses with the
+// TypeScript compiler. unenv gives the Worker a `process.versions.node`, so `ts`
+// takes its Node path at module-eval and reads `__filename`, which workerd has
+// no concept of — the module throws before a single request is served. Two
+// globals are enough to get it past that probe.
+function shimNodeFileGlobals(): void {
+  const g = globalThis as Record<string, unknown>;
+  g["__filename"] ??= "/worker.js";
+  g["__dirname"] ??= "/";
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // The agent-facing JSON API is handled before TanStack routing: server
+      // functions are CSRF-protected for the browser, and an external agent has
+      // no token to send. Imported lazily so zod and the Anthropic SDK stay out
+      // of the SSR path.
+      if (new URL(request.url).pathname.startsWith("/api/")) {
+        shimNodeFileGlobals();
+        const { handleApiRequest } = await import("./server/generateApi");
+        return await handleApiRequest(request);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

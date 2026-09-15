@@ -227,6 +227,24 @@ export function renameTool(b: ToolBundle, newName: string): ToolBundle {
   return { ...b, name, config, configJson };
 }
 
+/** Recursive merge; arrays and scalars from the patch replace the base. */
+export function deepMerge(base: unknown, patch: unknown): unknown {
+  if (!isPlainObject(base) || !isPlainObject(patch)) return patch;
+  const out: Record<string, unknown> = { ...base };
+  for (const [key, value] of Object.entries(patch)) {
+    // A null in a patch means "drop this key". That is how the assistant clears
+    // something it inherited — e.g. removing the seed tool's `a`/`b` inputs from
+    // a new tool's signature. Merging it as a value would render `a: null` into
+    // the tool file, which no ToolConfig field accepts.
+    if (value === null) {
+      delete out[key];
+      continue;
+    }
+    out[key] = key in out ? deepMerge(out[key], value) : value;
+  }
+  return out;
+}
+
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
 /* ------------------------------------------------------------------ */
