@@ -44,7 +44,6 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
-
 // The API renders tool files through src/lib/tgs/ast.ts, which parses with the
 // TypeScript compiler. unenv gives the Worker a `process.versions.node`, so `ts`
 // takes its Node path at module-eval and reads `__filename`, which workerd has
