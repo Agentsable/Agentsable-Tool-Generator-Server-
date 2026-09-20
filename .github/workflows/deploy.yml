@@ -22,6 +22,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+
+      # Nothing ran these before, so a suite that silently skipped 7 of 21 files
+      # and a lint exiting 1 both rode to production unnoticed. Seconds each, and
+      # they run before the build so a failure is fast.
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun run test
+
+      # ponytail: the deno runner's own suite guards the sandbox rules (network
+      # allowlist, path traversal, timeouts). 170ms for the one setup step.
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: bun run deno:test
+
       - run: bun run build
 
       # ponytail: no wrangler-action. `bun run deploy` is the same command used
