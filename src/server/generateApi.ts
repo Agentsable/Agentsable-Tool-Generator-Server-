@@ -137,6 +137,22 @@ function fail(status: number, code: string, error: string): Response {
   return json(status, { ok: false, code, error });
 }
 
+/**
+ * Compares without returning early on the first differing character, so the
+ * time taken says nothing about how much of the key was right.
+ *
+ * Hand-rolled because the runtimes disagree: Workers puts it on
+ * `crypto.subtle.timingSafeEqual`, Node on `node:crypto`, and sniffing between
+ * them is more code than the loop, plus it would make `authorize` async.
+ * Length is allowed to leak; the key's length is not the secret.
+ */
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 /** Null when the caller is authorized, otherwise the response to send back. */
 function authorize(request: Request): Response | null {
   const expected = readEnv("TGS_API_KEY");
@@ -149,10 +165,7 @@ function authorize(request: Request): Response | null {
   }
   const header = request.headers.get("authorization") ?? "";
   const presented = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
-  // ponytail: plain compare. Remote timing attacks through TLS + network jitter
-  // are not practical against a high-entropy key; swap in a digest compare if
-  // this ever moves somewhere an attacker can measure locally.
-  if (presented === "" || presented !== expected) {
+  if (presented === "" || !constantTimeEqual(presented, expected)) {
     return fail(401, "UNAUTHORIZED", "Send `Authorization: Bearer <TGS_API_KEY>`.");
   }
   return null;

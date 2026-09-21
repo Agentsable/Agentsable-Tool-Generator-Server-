@@ -70,6 +70,10 @@ describe("handleApiRequest", () => {
   it("rejects a wrong or missing key", async () => {
     setKey("secret");
     expect((await handleApiRequest(post({ prompt: "hi" }, "nope"))).status).toBe(401);
+    // Same length as the real key, so this is the one that reaches the
+    // comparison loop rather than stopping at the length check.
+    expect((await handleApiRequest(post({ prompt: "hi" }, "secrft"))).status).toBe(401);
+    expect((await handleApiRequest(post({ prompt: "hi" }, ""))).status).toBe(401);
     expect(turn.runAssistantTurn).not.toHaveBeenCalled();
   });
 
