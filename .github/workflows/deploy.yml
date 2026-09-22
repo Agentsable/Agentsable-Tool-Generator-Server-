@@ -33,9 +33,15 @@ jobs:
       # ponytail: the deno runner's own suite guards the sandbox rules (network
       # allowlist, path traversal, timeouts). 170ms for the one setup step.
       - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
       - run: bun run deno:test
+
+      # The unit suite stays green even when the browser suite is 0/9 (missing
+      # browser binary) or passes only on machines without an API key -- both
+      # happened. This is the only gate exercising SSR, hydration, Pyodide and
+      # the sandbox together. Reuses the deno setup above; Playwright boots both
+      # servers itself.
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:e2e
 
       - run: bun run build
 
