@@ -3,6 +3,10 @@ name: Deploy
 on:
   push:
     branches: [main]
+  # Without this the gates below only ever run on main, at deploy time: a bad
+  # commit is already on main by the time anything fails. On a PR they run and
+  # the deploy step is skipped.
+  pull_request:
   workflow_dispatch:
     inputs:
       target:
@@ -48,6 +52,7 @@ jobs:
       # ponytail: no wrangler-action. `bun run deploy` is the same command used
       # locally, so CI can't drift from what a human runs.
       - name: Deploy
+        if: github.event_name != 'pull_request'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
