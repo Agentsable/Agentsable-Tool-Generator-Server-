@@ -27,6 +27,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
 
+      # Deno before the unit suite, not just before deno:test:
+      # tests/integration/runnerE2E.test.ts spawns the real sandbox, so vitest
+      # needs the binary too. Ordering this later is what failed PR #1's first
+      # run, and it passed locally only because a dev machine already has Deno.
+      - uses: denoland/setup-deno@v2
+
       # Nothing ran these before, so a suite that silently skipped 7 of 21 files
       # and a lint exiting 1 both rode to production unnoticed. Seconds each, and
       # they run before the build so a failure is fast.
@@ -35,8 +41,7 @@ jobs:
       - run: bun run test
 
       # ponytail: the deno runner's own suite guards the sandbox rules (network
-      # allowlist, path traversal, timeouts). 170ms for the one setup step.
-      - uses: denoland/setup-deno@v2
+      # allowlist, path traversal, timeouts).
       - run: bun run deno:test
 
       # The unit suite stays green even when the browser suite is 0/9 (missing
