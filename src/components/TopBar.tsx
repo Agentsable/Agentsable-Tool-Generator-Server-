@@ -289,7 +289,6 @@ export function TopBar() {
         <span className="text-sm font-semibold text-foreground">Tool Workspace</span>
       </div>
 
-
       <button className="btn" onClick={() => void handleLoadFile()}>
         <FolderOpen className="h-4 w-4" /> Load File
       </button>
@@ -363,7 +362,9 @@ export function TopBar() {
             aria-describedby="tgs-rename-note"
             title="Renaming the tool renames all four files and updates config.name."
           />
-          <span className={dirty ? "chip chip-accent" : "chip"}>{dirty ? "unsaved" : "in sync"}</span>
+          <span className={dirty ? "chip chip-accent" : "chip"}>
+            {dirty ? "unsaved" : "in sync"}
+          </span>
         </div>
         <p
           id="tgs-rename-note"

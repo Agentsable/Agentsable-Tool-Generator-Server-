@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import type { ToolConfig, ToolTest } from "@/lib/tgs/contract";
 import type { AssistantEdit } from "@/rpc/tgsServerFns";
 import { getClaudeStatus, postAssistantTurn } from "@/rpc/tgsServerFns";
+import { deepMerge } from "@/lib/tgs/toolFiles";
 import { useTool, type WorkspaceTab } from "@/state/toolStore";
 
 /** The event the Validator (and any other screen) dispatches to drive this pane. */
@@ -76,16 +77,6 @@ const STARTERS: Record<WorkspaceTab, string[]> = {
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** Recursive merge; arrays and scalars from the patch replace the base. */
-function deepMerge(base: unknown, patch: unknown): unknown {
-  if (!isPlainObject(base) || !isPlainObject(patch)) return patch;
-  const out: Record<string, unknown> = { ...base };
-  for (const [key, value] of Object.entries(patch)) {
-    out[key] = key in out ? deepMerge(out[key], value) : value;
-  }
-  return out;
 }
 
 /** Let React flush the state writes from the previous edit before the next one reads them. */

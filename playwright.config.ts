@@ -22,7 +22,9 @@ export default defineConfig({
       url: `http://127.0.0.1:${APP_PORT}/`,
       reuseExistingServer: true,
       timeout: 180_000,
-      env: { TGS_RUNNER_URL: `http://127.0.0.1:${RUNNER_PORT}` },
+      // Blanked so the suite always sees Claude's not-configured path: vite dev loads
+      // .env itself, so a developer's real key would render the live assistant instead.
+      env: { TGS_RUNNER_URL: `http://127.0.0.1:${RUNNER_PORT}`, ANTHROPIC_API_KEY: "" },
     },
     {
       command: `deno run --allow-net --allow-read --allow-env --allow-write server.ts`,

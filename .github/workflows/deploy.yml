@@ -3,6 +3,10 @@ name: Deploy
 on:
   push:
     branches: [main]
+  # Without this the gates below only ever run on main, at deploy time: a bad
+  # commit is already on main by the time anything fails. On a PR they run and
+  # the deploy step is skipped.
+  pull_request:
   workflow_dispatch:
     inputs:
       target:
@@ -19,14 +23,41 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+
+      # Deno before the unit suite, not just before deno:test:
+      # tests/integration/runnerE2E.test.ts spawns the real sandbox, so vitest
+      # needs the binary too. Ordering this later is what failed PR #1's first
+      # run, and it passed locally only because a dev machine already has Deno.
+      - uses: denoland/setup-deno@v2
+
+      # Nothing ran these before, so a suite that silently skipped 7 of 21 files
+      # and a lint exiting 1 both rode to production unnoticed. Seconds each, and
+      # they run before the build so a failure is fast.
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun run test
+
+      # ponytail: the deno runner's own suite guards the sandbox rules (network
+      # allowlist, path traversal, timeouts).
+      - run: bun run deno:test
+
+      # The unit suite stays green even when the browser suite is 0/9 (missing
+      # browser binary) or passes only on machines without an API key -- both
+      # happened. This is the only gate exercising SSR, hydration, Pyodide and
+      # the sandbox together. Reuses the deno setup above; Playwright boots both
+      # servers itself.
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:e2e
+
       - run: bun run build
 
       # ponytail: no wrangler-action. `bun run deploy` is the same command used
       # locally, so CI can't drift from what a human runs.
       - name: Deploy
+        if: github.event_name != 'pull_request'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

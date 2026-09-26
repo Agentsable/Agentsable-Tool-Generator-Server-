@@ -14,7 +14,10 @@ import { probeRunner, runBundleTests } from "@/lib/tgs/runnerClient";
 
 const PORT = 8099;
 const BASE = `http://127.0.0.1:${PORT}`;
-const DENO = `${process.env["HOME"]}/.deno/bin/deno`;
+// Resolved off PATH, like the deno:test/deno:server scripts and
+// playwright.config.ts already do. An absolute ~/.deno path only exists on a
+// machine that installed Deno that way; CI installs it elsewhere.
+const DENO = "deno";
 
 let proc: ChildProcessWithoutNullStreams | null = null;
 
